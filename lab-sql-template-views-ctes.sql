@@ -23,19 +23,23 @@ LIMIT 10;
 -- Next, create a Temporary Table that calculates the total amount paid by each customer (total_paid).
 --  The Temporary Table should use the rental summary view created in Step 1 to join with the payment table 
 -- and calculate the total amount paid by each customer.
-DROP TEMPORARY TABLE IF EXISTS customer_payment_summary; -- pues aqui tb lo hacemos
+
+DROP TEMPORARY TABLE IF EXISTS customer_payment_summary;
+
 CREATE TEMPORARY TABLE customer_payment_summary AS
 SELECT 
-    c.customer_id,
-    COALESCE(SUM(p.amount), 0) AS total_paid -- Para evitar el nulo
-FROM customer c
-LEFT JOIN rental r 
-    ON c.customer_id = r.customer_id
+    crs.customer_id,
+    COALESCE(SUM(p.amount), 0) AS total_paid
+FROM customer_rental_summary crs
+LEFT JOIN rental r
+    ON crs.customer_id = r.customer_id
 LEFT JOIN payment p
     ON r.rental_id = p.rental_id
-GROUP BY c.customer_id;
+GROUP BY crs.customer_id;
 
-SELECT * FROM customer_payment_summary
+-- Checking the temporary table
+SELECT *
+FROM customer_payment_summary
 ORDER BY total_paid DESC
 LIMIT 10;
 
